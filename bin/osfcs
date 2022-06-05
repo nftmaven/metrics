@@ -2,10 +2,11 @@
 
 tlp=${HOME}/Downloads/nftmaven/collections
 ds=`date "+%Y-%m-%d"`
-size=300
 dpath=${tlp}/${ds}
-# turi=https://api.opensea.io/api/v1/collections
-turi=https://testnets-api.opensea.io/api/v1/collections
+
+turi=https://api.opensea.io/api/v1/collections
+# turi=https://testnets-api.opensea.io/api/v1/collections
+size=300
 
 rm -rf ${dpath}
 mkdir -p $dpath
