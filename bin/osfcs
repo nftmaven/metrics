@@ -1,0 +1,27 @@
+#!/bin/bash
+
+tlp=${HOME}/Downloads/nftmaven/collections
+ds=`date "+%Y-%m-%d"`
+size=300
+dpath=${tlp}/${ds}
+# turi=https://api.opensea.io/api/v1/collections
+turi=https://testnets-api.opensea.io/api/v1/collections
+
+rm -rf ${dpath}
+mkdir -p $dpath
+
+for i in {0..789} ; do
+   echo $i
+   dlfn=/tmp/tos-$i.json
+   offset=$((i*size))
+   response=$(curl -L -s -o /tmp/os.json -w "%{http_code}"  --header 'Accept: application/json' --request GET --url "${turi}?offset=${offset}&limit=${size}")
+   if ((response != 200)); then
+      echo "response: $response"
+      echo 'response != 200 => aborting'
+      break
+   fi
+   cat /tmp/os.json | jq > ${dlfn}
+   idx=$(printf '%04d' $((i+1)))
+   jq '.collections[] | select(.stats.total_volume > 0.0 and (.safelist_request_status == "approved" or (.primary_asset_contracts | length) > 0))' ${dlfn} |jq > ${dpath}/os-$idx-collection.json
+done
+find ${dpath} -maxdepth 1 -type f -empty -delete
