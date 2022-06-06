@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+   chain="ethereum"
+else
+   chain="$1"
+fi
+
+tlp=${HOME}/Downloads/nftmaven/top100
+ds=`date "+%Y-%m-%d"`
+dpath=${tlp}/${ds}
+uas='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
+
+dlfn="${dpath}/${chain}.json"
+head -n 1 ${dlfn} | perl -p -e 's,^.+__wired__=({.+})</script><script>window.__sidecar_config__=.+$,$1,' | jq > /tmp/${chain}.json
+
+IFS=$'\n'
+cidx=1
+for row in `jq --raw-output '.records | to_entries | .[] | select(.value.__typename == "CollectionType") | [.value.id, .value.name, .value.slug, .value.isVerified, .value.createdDate] | @csv' /tmp/${chain}.json`; do
+   printf "%d,%s,%s\n" ${cidx} ${ds} "${row}"
+   ((cidx++))
+done
