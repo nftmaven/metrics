@@ -1,5 +1,6 @@
 #!/bin/bash
 
+turi="https://opensea.io/rankings"
 tlp=${HOME}/Downloads/nftmaven/top100
 ds=`date "+%Y-%m-%d"`
 dpath=${tlp}/${ds}
@@ -11,5 +12,9 @@ mkdir -p $dpath
 for chain in ethereum solana matic klaytn; do
    echo "** chain => ${chain} **"
    dlfn="${dpath}/${chain}.json"
-   curl -L -s -o $dlfn --request GET --url https://opensea.io/rankings?chain=${chain} -A ${uas}
+   curl -L -s -o $dlfn --request GET --url ${turi}?chain=${chain} -A ${uas}
 done
+
+echo "** global top 100 **"
+dlfn="${dpath}/global.json"
+curl -L -s -o $dlfn --request GET --url ${turi} -A ${uas}
