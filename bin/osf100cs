@@ -5,7 +5,6 @@ turi="https://api.opensea.io/api/v1/collection"
 tlp=${HOME}/Downloads/nftmaven/top100
 ds=`date "+%Y-%m-%d"`
 dpath=${tlp}/${ds}
-uas='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
 
 for chain in ethereum solana matic klaytn; do
    echo "** chain => ${chain} **"
@@ -19,11 +18,11 @@ for chain in ethereum solana matic klaytn; do
    IFS=$'\n'
    cidx=1
    for slug in `jq --raw-output '.records | to_entries | .[] | select(.value.__typename == "CollectionType") | .value.slug' /tmp/${chain}.json`; do
-      printf "%03d,%s,%s\n" ${cidx} ${ds} "${slug}"
       fn=$(printf "%03d_%s_%s" ${cidx} ${ds} "${slug}")
       ((cidx++))
       dlfn="${cdpath}/${fn}.json"
 
+      echo ${fn}
       response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --header 'Accept: application/json' --request GET --url "${turi}/${slug}")
       if ((response != 200)); then
          echo "response: $response"

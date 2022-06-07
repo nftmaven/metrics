@@ -9,7 +9,7 @@ rm -rf ${dpath}
 mkdir -p $dpath
 
 for chain in ethereum solana matic klaytn; do
-   echo "** ${chain} **"
+   echo "** chain => ${chain} **"
    dlfn="${dpath}/${chain}.json"
    curl -L -s -o $dlfn --request GET --url https://opensea.io/rankings?chain=${chain} -A ${uas}
 done
