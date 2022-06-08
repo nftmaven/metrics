@@ -2,22 +2,22 @@
 
 turi="https://api.opensea.io/api/v1/collection"
 
-tlp=${HOME}/Downloads/nftmaven/top100
+tlp=${HOME}/Downloads/nftmaven/opensea
 ds=`date "+%Y-%m-%d"`
-dpath=${tlp}/${ds}
+jdpath=${tlp}/top100/${ds}
+dpath=${tlp}/collection/${ds}
 
 for chain in ethereum solana matic klaytn; do
    echo "** chain => ${chain} **"
-   dlfn="${dpath}/${chain}.json"
-   head -n 1 ${dlfn} | perl -p -e 's,^.+__wired__=({.+})</script><script>window.__sidecar_config__=.+$,$1,' | jq > /tmp/${chain}.json
-
-   cdpath=${tlp}/${ds}/${chain}
+   cdpath=${dpath}/${chain}
    rm -rf ${cdpath}
    mkdir -p ${cdpath}
 
+   dlfn="${jdpath}/${chain}.json"
+
    IFS=$'\n'
    cidx=1
-   for slug in `jq --raw-output '.records | to_entries | .[] | select(.value.__typename == "CollectionType") | .value.slug' /tmp/${chain}.json`; do
+   for slug in `jq --raw-output '.records | to_entries | .[] | select(.value.__typename == "CollectionType") | .value.slug' ${dlfn}`; do
       fn=$(printf "%03d_%s_%s" ${cidx} ${ds} "${slug}")
       ((cidx++))
       dlfn="${cdpath}/${fn}.json"

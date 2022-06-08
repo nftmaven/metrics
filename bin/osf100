@@ -1,9 +1,8 @@
 #!/bin/bash
 
 turi="https://opensea.io/rankings"
-tlp=${HOME}/Downloads/nftmaven/top100
 ds=`date "+%Y-%m-%d"`
-dpath=${tlp}/${ds}
+dpath=${HOME}/Downloads/nftmaven/opensea/top100/${ds}
 uas='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
 
 rm -rf ${dpath}
@@ -11,10 +10,16 @@ mkdir -p $dpath
 
 for chain in ethereum solana matic klaytn; do
    echo "** chain => ${chain} **"
-   dlfn="${dpath}/${chain}.json"
+   dlfn="/tmp/${chain}.osc"
    curl -L -s -o $dlfn --request GET --url ${turi}?chain=${chain} -A ${uas}
+   ofn="${dpath}/${chain}.json"
+   head -n 1 ${dlfn} | perl -p -e 's,^.+__wired__=({.+})</script><script>window.__sidecar_config__=.+$,$1,' | jq > ${ofn}
+   sleep 3
 done
 
 echo "** global top 100 **"
-dlfn="${dpath}/global.json"
+chain=global
+dlfn="/tmp/${chain}.osc"
 curl -L -s -o $dlfn --request GET --url ${turi} -A ${uas}
+ofn="${dpath}/${chain}.json"
+head -n 1 ${dlfn} | perl -p -e 's,^.+__wired__=({.+})</script><script>window.__sidecar_config__=.+$,$1,' | jq > ${ofn}

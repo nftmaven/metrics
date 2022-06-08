@@ -6,7 +6,7 @@ timestamp := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 dbdir=/tmp/nftmaven/db
-dbinitdir="$(ROOT_DIR)/deployments/db"
+dbinitdir=$(ROOT_DIR)/deployments/db
 
 
 all: build
