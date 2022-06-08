@@ -28,8 +28,9 @@ func main() {
 		Usage: "OpenSea client",
 		Commands: []*cli.Command{
 			{
-				Name:  "100",
-				Usage: "process top-100 file",
+				Name:    "process-top-100",
+				Aliases: []string{"pth"},
+				Usage:   "process top-100 files",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "fpath",
