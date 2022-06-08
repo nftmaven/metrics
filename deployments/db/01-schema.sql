@@ -19,8 +19,8 @@ CREATE TABLE nft (
    slug VARCHAR(128) NOT NULL,
    name VARCHAR(128) NOT NULL,
    PRIMARY KEY (id),
-   FOREIGN KEY (date_source_name) REFERENCES data_source (name).
-   unique(slug, date_source_name)
+   FOREIGN KEY (data_source_name) REFERENCES data_source (name),
+   unique(slug, data_source_name)
  );
 
 
@@ -34,7 +34,7 @@ CREATE TABLE top100stats (
    data_source_name VARCHAR(128) NOT NULL,
    PRIMARY KEY (id),
    FOREIGN KEY (nft_id) REFERENCES nft (id),
-   FOREIGN KEY (date_source_name) REFERENCES data_source (name),
+   FOREIGN KEY (data_source_name) REFERENCES data_source (name),
    unique(day, nft_id, criterion)
  );
 
@@ -63,6 +63,6 @@ CREATE TABLE sales (
    data_source_name VARCHAR(128) NOT NULL,
    PRIMARY KEY (id),
    FOREIGN KEY (nft_id) REFERENCES nft (id),
-   FOREIGN KEY (date_source_name) REFERENCES data_source (name),
+   FOREIGN KEY (data_source_name) REFERENCES data_source (name),
    unique(day,nft_id)
  );
