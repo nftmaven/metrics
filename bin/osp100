@@ -8,17 +8,19 @@ fi
 
 turi="https://api.opensea.io/api/v1/collection"
 
-tlp=${HOME}/Downloads/nftmaven/top100
 ds=`date "+%Y-%m-%d"`
-dpath=${tlp}/${ds}
+dpath=${HOME}/Downloads/nftmaven/opensea/top100/${ds}
 uas='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
 
-dlfn="${dpath}/${chain}.json"
-head -n 1 ${dlfn} | perl -p -e 's,^.+__wired__=({.+})</script><script>window.__sidecar_config__=.+$,$1,' | jq > /tmp/${chain}.json
+for chain in global ethereum solana matic klaytn; do
+   ifp="${dpath}/${chain}.json"
+   ofp="${dpath}/${chain}.csv"
+   rm -f ${ofp}
 
-IFS=$'\n'
-cidx=1
-for row in `jq --raw-output '.records | to_entries | .[] | select(.value.__typename == "CollectionType") | [.value.id, .value.name, .value.slug, .value.isVerified, .value.createdDate] | @csv' /tmp/${chain}.json`; do
-   printf "%d,%s,%s\n" ${cidx} ${ds} "${row}"
-   ((cidx++))
+   IFS=$'\n'
+   cidx=1
+   for row in `jq --raw-output '.records | to_entries[] | select(.value.__typename == "CollectionType") | [.value.id, .value.name, .value.slug, .value.isVerified, .value.createdDate] | @csv' ${ifp}`; do
+      printf "\"%03d\",\"%s\",%s\n" ${cidx} ${ds} "${row}" >> ${ofp}
+      ((cidx++))
+   done
 done
