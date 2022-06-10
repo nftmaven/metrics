@@ -22,10 +22,9 @@ type Stats struct {
 	Day30Sales    decimal.Decimal `json:"thirty_day_sales"`
 	Day30AvgPrice decimal.Decimal `json:"thirty_day_average_price"`
 	TotalVolume   decimal.Decimal `json:"total_volume"`
-	TotalChange   decimal.Decimal `json:"total_change"`
 	TotalSales    decimal.Decimal `json:"total_sales"`
-	Count         decimal.Decimal `json:"count"`
-	NumOwners     decimal.Decimal `json:"num_owners"`
+	TotalSupply   decimal.Decimal `json:"total_supply"`
+	Owners        decimal.Decimal `json:"num_owners"`
 	AvgPrice      decimal.Decimal `json:"average_price"`
 	MarketCap     decimal.Decimal `json:"market_cap"`
 	FloorPrice    decimal.Decimal `json:"floor_price"`

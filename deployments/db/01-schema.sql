@@ -47,22 +47,31 @@ DROP TABLE IF EXISTS sales;
 CREATE TABLE sales (
    id MEDIUMINT NOT NULL AUTO_INCREMENT,
    day DATE NOT NULL,
-   v1 DECIMAL NOT NULL,
-   v1_delta DECIMAL NOT NULL,
-   s1 MEDIUMINT NOT NULL,
-   v7 DECIMAL NOT NULL,
-   v7_delta DECIMAL NOT NULL,
-   s7 MEDIUMINT NOT NULL,
-   v30 DECIMAL NOT NULL,
-   v30_delta DECIMAL NOT NULL,
-   s30 MEDIUMINT NOT NULL,
-   vt DECIMAL NOT NULL,
-   st MEDIUMINT NOT NULL,
-   supply MEDIUMINT NOT NULL,
+
+   d1_volume DECIMAL NOT NULL,
+   d1_change DECIMAL NOT NULL,
+   d1_sales DECIMAL NOT NULL,
+   d1_avg_price DECIMAL NOT NULL,
+
+   d7_volume DECIMAL NOT NULL,
+   d7_change DECIMAL NOT NULL,
+   d7_sales DECIMAL NOT NULL,
+   d7_avg_price DECIMAL NOT NULL,
+
+   d30_volume DECIMAL NOT NULL,
+   d30_change DECIMAL NOT NULL,
+   d30_sales DECIMAL NOT NULL,
+   d30_avg_price DECIMAL NOT NULL,
+
+   total_volume DECIMAL NOT NULL,
+   total_sales DECIMAL NOT NULL,
+   total_supply MEDIUMINT NOT NULL,
+
    owners MEDIUMINT NOT NULL,
    avg_price DECIMAL NOT NULL,
    market_cap DECIMAL NOT NULL,
    floor_price DECIMAL NOT NULL,
+
    nft_id MEDIUMINT NOT NULL,
    data_source_name VARCHAR(128) NOT NULL,
    PRIMARY KEY (id),
