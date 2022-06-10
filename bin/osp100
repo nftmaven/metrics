@@ -13,11 +13,12 @@ for chain in global ethereum solana matic klaytn; do
    ifp="${dpath}/${chain}.json"
    ofp="${dpath}/${chain}.csv"
    rm -f ${ofp}
+   echo '"rank","date","id","name","slug","is_verified","created_date"' > ${ofp}
 
    IFS=$'\n'
    cidx=1
    for row in `jq --raw-output '.records | to_entries[] | select(.value.__typename == "CollectionType") | [.value.id, .value.name, .value.slug, .value.isVerified, .value.createdDate] | @csv' ${ifp}`; do
-      printf "\"%03d\",\"%s\",%s\n" ${cidx} ${ds} "${row}" >> ${ofp}
+      printf "\"%d\",\"%s\",%s\n" ${cidx} ${ds} "${row}" >> ${ofp}
       ((cidx++))
    done
 done

@@ -22,7 +22,7 @@ func main() {
 	}
 	version = fmt.Sprintf("%s::%s", bts, rev)
 	log.Info("version = ", version)
-	var fpath string
+	var dsource, criterion, fpath string
 	app := &cli.App{
 		Name:  "osc",
 		Usage: "OpenSea client",
@@ -33,6 +33,18 @@ func main() {
 				Usage:   "process top-100 files",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
+						Name:        "dsource",
+						Usage:       "data source (e.g. \"opensea\")",
+						Required:    true,
+						Destination: &dsource,
+					},
+					&cli.StringFlag{
+						Name:        "criterion",
+						Usage:       "either one of the chains (e.g. \"ethereum\") or \"global\"",
+						Required:    true,
+						Destination: &criterion,
+					},
+					&cli.StringFlag{
 						Name:        "fpath",
 						Usage:       "top-100 file path",
 						Required:    true,
@@ -41,7 +53,7 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					log.Info("fpath = ", fpath)
-					data, err := top100.Process(fpath)
+					data, err := top100.Process(dsource, criterion, fpath)
 					if err != nil {
 						return err
 					}
