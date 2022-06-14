@@ -72,10 +72,10 @@ CREATE TABLE stats (
    market_cap DECIMAL NOT NULL,
    floor_price DECIMAL NOT NULL,
 
-   nft_id MEDIUMINT NOT NULL,
+   slug VARCHAR(128) NOT NULL,
    data_source_name VARCHAR(128) NOT NULL,
    PRIMARY KEY (id),
-   FOREIGN KEY (nft_id) REFERENCES nft (id),
+   FOREIGN KEY (slug, data_source_name) REFERENCES nft (slug, data_source_name),
    FOREIGN KEY (data_source_name) REFERENCES data_source (name),
-   unique(day,nft_id)
+   unique(day,slug, data_source_name)
  );
