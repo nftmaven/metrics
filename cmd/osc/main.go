@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/nftmaven/metrics/internal/os/top100"
 	"github.com/sirupsen/logrus"
@@ -22,6 +24,14 @@ func main() {
 	}
 	version = fmt.Sprintf("%s::%s", bts, rev)
 	log.Info("version = ", version)
+
+	dsn := getDSN()
+	db, err := sqlx.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	var dsource, criterion, fpath string
 	app := &cli.App{
 		Name:  "osc",
@@ -53,7 +63,7 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					log.Info("fpath = ", fpath)
-					data, err := top100.Process(dsource, criterion, fpath)
+					data, err := top100.Process(db, dsource, criterion, fpath)
 					if err != nil {
 						return err
 					}
@@ -68,4 +78,34 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getDSN() string {
+	var (
+		host, port, user, passwd, database string
+		present                            bool
+	)
+
+	host, present = os.LookupEnv("NFTMAVEN_DB_HOST")
+	if !present {
+		log.Fatal("NFTMAVEN_DB_HOST variable not set")
+	}
+	port, present = os.LookupEnv("NFTMAVEN_DB_PORT")
+	if !present {
+		log.Fatal("NFTMAVEN_DB_PORT variable not set")
+	}
+	user, present = os.LookupEnv("NFTMAVEN_DB_USER")
+	if !present {
+		log.Fatal("NFTMAVEN_DB_USER variable not set")
+	}
+	passwd, present = os.LookupEnv("NFTMAVEN_DB_PASSWORD")
+	if !present {
+		log.Fatal("NFTMAVEN_DB_PASSWORD variable not set")
+	}
+	database, present = os.LookupEnv("NFTMAVEN_DB_DATABASE")
+	if !present {
+		log.Fatal("NFTMAVEN_DB_DATABASE variable not set")
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true&time_zone=UTC", user, passwd, host, port, database)
+	return dsn
 }

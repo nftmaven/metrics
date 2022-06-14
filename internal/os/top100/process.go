@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gocarina/gocsv"
+	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,7 +23,16 @@ type Top100 struct {
 	CreatedDate string `csv:"created_date"`
 }
 
-func Process(ds, criterion, fpath string) ([]*Top100, error) {
+type Top100M struct {
+	ID         int    `db:"id"`
+	Day        string `db:"day"`
+	Criterion  string `db:"criterion"`
+	Rank       int    `db:"rank"`
+	Slug       string `db:"slug"`
+	DataSource string `db:"data_source_name"`
+}
+
+func Process(db *sqlx.DB, ds, criterion, fpath string) ([]*Top100, error) {
 	data := []*Top100{}
 
 	fh, err := os.OpenFile(fpath, os.O_RDONLY, os.ModePerm)
@@ -34,6 +44,19 @@ func Process(ds, criterion, fpath string) ([]*Top100, error) {
 	err = gocsv.UnmarshalFile(fh, &data)
 	if err != nil {
 		err = fmt.Errorf("failed to unmarshal '%s', %w", fpath, err)
+		log.Errorf(err.Error())
+		return nil, err
+	}
+
+	if len(data) == 0 {
+		return data, nil
+	}
+	q := fmt.Sprintf(
+		`INSERT INTO top100stats(day, criterion, rank, slug, data_source_name)
+       VALUES ('%s', '%s', :rank, :slug, '%s')`, data[0].Day, criterion, ds)
+	_, err = db.NamedExec(q, data)
+	if err != nil {
+		err = fmt.Errorf("failed to write to db '%s', %w", criterion, err)
 		log.Errorf(err.Error())
 		return nil, err
 	}
