@@ -63,11 +63,14 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					log.Info("fpath = ", fpath)
-					data, err := top100.Process(db, dsource, criterion, fpath)
+					data, err := top100.Process(dsource, criterion, fpath)
 					if err != nil {
 						return err
 					}
-					log.Infof("%v", data)
+					err = top100.Persist(db, criterion, data)
+					if err != nil {
+						return err
+					}
 					return nil
 				},
 			},

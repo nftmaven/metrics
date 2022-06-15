@@ -14,25 +14,17 @@ var (
 )
 
 type Top100 struct {
-	Rank        int    `csv:"rank"`
-	Day         string `csv:"date"`
-	ID          string `csv:"id"`
+	ID          int    `csv:"-" db:"id"`
+	Rank        int    `csv:"rank" db:"rank"`
+	Day         string `csv:"date" db:"day"`
+	DataSource  string `csv:"-" db:"data_source_name"`
 	Name        string `csv:"name"`
-	Slug        string `csv:"slug"`
+	Slug        string `csv:"slug" db:"slug"`
 	IsVerified  bool   `csv:"is_verified"`
 	CreatedDate string `csv:"created_date"`
 }
 
-type Top100M struct {
-	ID         int    `db:"id"`
-	Day        string `db:"day"`
-	Criterion  string `db:"criterion"`
-	Rank       int    `db:"rank"`
-	Slug       string `db:"slug"`
-	DataSource string `db:"data_source_name"`
-}
-
-func Process(db *sqlx.DB, ds, criterion, fpath string) ([]*Top100, error) {
+func Process(ds, criterion, fpath string) ([]*Top100, error) {
 	data := []*Top100{}
 
 	fh, err := os.OpenFile(fpath, os.O_RDONLY, os.ModePerm)
@@ -48,18 +40,23 @@ func Process(db *sqlx.DB, ds, criterion, fpath string) ([]*Top100, error) {
 		return nil, err
 	}
 
+	return data, nil
+}
+
+func Persist(db *sqlx.DB, criterion string, data []*Top100) error {
 	if len(data) == 0 {
-		return data, nil
+		return nil
 	}
 	q := fmt.Sprintf(
 		`INSERT INTO top100stats(day, criterion, rank, slug, data_source_name)
-       VALUES ('%s', '%s', :rank, :slug, '%s')`, data[0].Day, criterion, ds)
-	_, err = db.NamedExec(q, data)
+		 VALUES ('%s', '%s', :rank, :slug, '%s')`, data[0].Day, criterion,
+		data[0].DataSource)
+	_, err := db.NamedExec(q, data)
 	if err != nil {
 		err = fmt.Errorf("failed to write to db '%s', %w", criterion, err)
 		log.Errorf(err.Error())
-		return nil, err
+		return err
 	}
 
-	return data, nil
+	return nil
 }
