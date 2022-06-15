@@ -50,24 +50,24 @@ CREATE TABLE stats (
 
    d1_volume DECIMAL(20,8) NOT NULL,
    d1_change DECIMAL(20,8) NOT NULL,
-   d1_sales DECIMAL(20,8) NOT NULL,
+   d1_sales INT UNSIGNED NOT NULL,
    d1_avg_price DECIMAL(20,8) NOT NULL,
 
    d7_volume DECIMAL(20,8) NOT NULL,
    d7_change DECIMAL(20,8) NOT NULL,
-   d7_sales DECIMAL(20,8) NOT NULL,
+   d7_sales INT UNSIGNED NOT NULL,
    d7_avg_price DECIMAL(20,8) NOT NULL,
 
    d30_volume DECIMAL(20,8) NOT NULL,
    d30_change DECIMAL(20,8) NOT NULL,
-   d30_sales DECIMAL(20,8) NOT NULL,
+   d30_sales INT UNSIGNED NOT NULL,
    d30_avg_price DECIMAL(20,8) NOT NULL,
 
    total_volume DECIMAL(20,8) NOT NULL,
-   total_sales DECIMAL(20,8) NOT NULL,
-   total_supply MEDIUMINT NOT NULL,
+   total_sales INT UNSIGNED NOT NULL,
+   total_supply INT UNSIGNED NOT NULL,
 
-   owners MEDIUMINT NOT NULL,
+   owners INT UNSIGNED NOT NULL,
    avg_price DECIMAL(20,8) NOT NULL,
    market_cap DECIMAL(20,8) NOT NULL,
    floor_price DECIMAL(20,8) NOT NULL,

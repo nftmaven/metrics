@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+   root=${HOME}/Downloads/nftmaven/opensea/collection
+else
+   root="$1"
+fi
+
+for day in $(ls ${root} | sort); do
+   for chain in $(ls ${root}/${day} | sort); do
+      for f in $(ls ${root}/${day}/${chain} | sort); do
+         bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${root}/${day}/${chain}/${f}
+      done
+   done
+done
+
