@@ -31,7 +31,6 @@ func Persist(db *sqlx.DB, day string, nft *NFT, stats *Stats) error {
 }
 
 func persistNFT(db *sqlx.DB, nft NFT) error {
-	log.Infof("%v", nft)
 	q := `
 		INSERT IGNORE INTO nft(
 			data_source_name, chain, slug, name, image_url, discord_url, url,
