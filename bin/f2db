@@ -1,10 +1,18 @@
 #!/bin/bash
 
 if [ -z $1 ]; then
-   root=${HOME}/Downloads/nftmaven/opensea/collection
+   root=/tmp/snapshot/opensea/collection
 else
    root="$1"
 fi
+
+# fetch the data from the server
+ssh gala "(cd /root/Downloads/nftmaven && tar czf /tmp/os.tgz opensea)" && scp gala:/tmp/os.tgz /home/user/Downloads/
+
+#unpack it on the local system
+rm -rf /tmp/snapshot
+mkdir -p /tmp/snapshot
+(cd /tmp/snapshot && tar xf /home/user/Downloads/os.tgz)
 
 for day in $(ls ${root} | sort); do
    for chain in $(ls ${root}/${day} | sort); do
