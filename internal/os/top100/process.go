@@ -40,6 +40,9 @@ func Process(ds, criterion, fpath string) ([]*Top100, error) {
 		return nil, err
 	}
 
+	for _, d := range data {
+		d.DataSource = ds
+	}
 	return data, nil
 }
 
@@ -51,11 +54,13 @@ func Persist(db *sqlx.DB, criterion string, data []*Top100) error {
 		`INSERT INTO top100stats(day, criterion, rank, slug, data_source_name)
 		 VALUES ('%s', '%s', :rank, :slug, '%s')`, data[0].Day, criterion,
 		data[0].DataSource)
-	_, err := db.NamedExec(q, data)
-	if err != nil {
-		err = fmt.Errorf("failed to write to db '%s', %w", criterion, err)
-		log.Errorf(err.Error())
-		return err
+	for _, d := range data {
+		_, err := db.NamedExec(q, d)
+		if err != nil {
+			err = fmt.Errorf("failed to write to db '%s', %#v, %w", criterion, d, err)
+			log.Errorf(err.Error())
+			return err
+		}
 	}
 
 	return nil

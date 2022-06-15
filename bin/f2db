@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z $1 ]; then
-   root=/tmp/snapshot/opensea/collection
+   root=/tmp/snapshot/opensea
 else
    root="$1"
 fi
@@ -14,11 +14,19 @@ rm -rf /tmp/snapshot
 mkdir -p /tmp/snapshot
 (cd /tmp/snapshot && tar xf /home/user/Downloads/os.tgz)
 
-for day in $(ls ${root} | sort); do
-   for chain in $(ls ${root}/${day} | sort); do
-      for f in $(ls ${root}/${day}/${chain} | sort); do
-         bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${root}/${day}/${chain}/${f}
+croot=${root}/collection
+for day in $(ls ${croot} | sort); do
+   for chain in $(ls ${croot}/${day} | sort); do
+      for f in $(ls ${croot}/${day}/${chain} | sort); do
+         bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${croot}/${day}/${chain}/${f}
       done
    done
 done
 
+troot=${root}/top100
+for day in $(ls ${troot} | sort); do
+   for f in $(ls ${troot}/${day} | grep csv$ | sort); do
+      criterion=$(basename ${f} .csv)
+      bin/osc pth --dsource opensea --criterion ${criterion} --fpath ${troot}/${day}/${f}
+   done
+done
