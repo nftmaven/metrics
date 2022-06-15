@@ -24,12 +24,12 @@ dockerinit:
 dbinit: dbhalt
 	-docker container prune -f >/dev/null 2>&1
 	-sudo rm -rf $(dbdir)
-	-docker run --detach -v $(dbdir):/var/lib/mysql:z  -v $(dbinitdir):/docker-entrypoint-initdb.d:z --network nftmavennet --name nftmavendb --env MARIADB_USER=$(NFTMAVEN_DB_USER) --env MARIADB_PASSWORD=$(NFTMAVEN_DB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(NFTMAVEN_DB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(NFTMAVEN_DB_DATABASE) mariadb:latest --port 13306
+	-docker run --detach -v $(dbdir):/var/lib/mysql:z  -v $(dbinitdir):/docker-entrypoint-initdb.d:z --network nftmavennet --name nftmavendb --env MARIADB_USER=$(NFTMAVEN_DB_USER) --env MARIADB_PASSWORD=$(NFTMAVEN_DB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(NFTMAVEN_DB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(NFTMAVEN_DB_DATABASE) -p 13306:3306 mariadb:latest
 
 
 dbstart:
 	-docker container prune -f >/dev/null 2>&1
-	-docker run --detach -v $(dbdir):/var/lib/mysql  --network nftmavennet --name nftmavendb --env MARIADB_USER=$(NFTMAVEN_DB_USER) --env MARIADB_PASSWORD=$(NFTMAVEN_DB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(NFTMAVEN_DB_ROOT_PASSWORD) mariadb:latest --port 13306
+	-docker run --detach -v $(dbdir):/var/lib/mysql  --network nftmavennet --name nftmavendb --env MARIADB_USER=$(NFTMAVEN_DB_USER) --env MARIADB_PASSWORD=$(NFTMAVEN_DB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(NFTMAVEN_DB_ROOT_PASSWORD) -p 13306:3306 mariadb:latest
 
 
 dbhalt:
@@ -38,4 +38,4 @@ dbhalt:
 
 dbprompt:
 	-docker container prune -f >/dev/null 2>&1
-	-docker run --network nftmavennet -it --rm mariadb mysql -h nftmavendb -u $(NFTMAVEN_DB_USER) -D $(NFTMAVEN_DB_DATABASE) -p$(NFTMAVEN_DB_PASSWORD) --port 13306
+	-docker run --network nftmavennet -it --rm mariadb mysql -h nftmavendb -u $(NFTMAVEN_DB_USER) -D $(NFTMAVEN_DB_DATABASE) -p$(NFTMAVEN_DB_PASSWORD)

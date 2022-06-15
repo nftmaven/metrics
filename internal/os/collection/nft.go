@@ -8,22 +8,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	log = logrus.New()
-)
+var log = logrus.New()
 
 type NFT struct {
-	DataSource     string `json:"data_source_name"`
-	Chain          string `json:"chain"`
-	Slug           string `json:"slug"`
-	Name           string `json:"name"`
-	ImageURL       string `json:"large_image_url"`
-	DiscordURL     string `json:"discord_url"`
-	URL            string `json:"external_url"`
-	SafelistStatus string `json:"safelist_request_status"`
+	DataSource     string `json:"data_source_name" db:"data_source_name"`
+	Chain          string `json:"chain" db:"chain"`
+	Slug           string `json:"slug" db:"slug"`
+	Name           string `json:"name" db:"name"`
+	ImageURL       string `json:"large_image_url" db:"image_url"`
+	DiscordURL     string `json:"discord_url" db:"discord_url"`
+	URL            string `json:"external_url" db:"url"`
+	SafelistStatus string `json:"safelist_request_status" db:"safelist_status"`
 }
 
-func Parse(ds, chain, path string) (*NFT, error) {
+func ParseNFT(ds, chain, path string) (*NFT, error) {
 	type collection struct {
 		NFT NFT `json:"collection"`
 	}

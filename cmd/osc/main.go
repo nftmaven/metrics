@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/nftmaven/metrics/internal/os/collection"
 	"github.com/nftmaven/metrics/internal/os/top100"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -32,7 +33,7 @@ func main() {
 	}
 	defer db.Close()
 
-	var dsource, criterion, fpath string
+	var chain, criterion, day, dsource, fpath string
 	app := &cli.App{
 		Name:  "osc",
 		Usage: "OpenSea client",
@@ -40,7 +41,7 @@ func main() {
 			{
 				Name:    "process-top-100",
 				Aliases: []string{"pth"},
-				Usage:   "process top-100 files",
+				Usage:   "process a top-100 csv file",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "dsource",
@@ -56,7 +57,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:        "fpath",
-						Usage:       "top-100 file path",
+						Usage:       "top-100 csv file path",
 						Required:    true,
 						Destination: &fpath,
 					},
@@ -68,6 +69,53 @@ func main() {
 						return err
 					}
 					err = top100.Persist(db, criterion, data)
+					if err != nil {
+						return err
+					}
+					return nil
+				},
+			},
+			{
+				Name:    "process-collection-stats",
+				Aliases: []string{"pcs"},
+				Usage:   "process a json file with stats for a specific collection",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "chain",
+						Usage:       "the chain this collection lives on (e.g. \"ethereum\")",
+						Required:    true,
+						Destination: &chain,
+					},
+					&cli.StringFlag{
+						Name:        "day",
+						Usage:       "date on which the stats were captured (e.g. \"2022-06-14\")",
+						Required:    true,
+						Destination: &day,
+					},
+					&cli.StringFlag{
+						Name:        "dsource",
+						Usage:       "data source (e.g. \"opensea\")",
+						Required:    true,
+						Destination: &dsource,
+					},
+					&cli.StringFlag{
+						Name:        "fpath",
+						Usage:       "stats file path",
+						Required:    true,
+						Destination: &fpath,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					log.Info("fpath = ", fpath)
+					nft, err := collection.ParseNFT(dsource, chain, fpath)
+					if err != nil {
+						return err
+					}
+					stats, err := collection.ParseStats(dsource, chain, fpath)
+					if err != nil {
+						return err
+					}
+					err = collection.Persist(db, day, nft, stats)
 					if err != nil {
 						return err
 					}
