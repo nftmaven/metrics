@@ -15,8 +15,18 @@ mkdir -p /tmp/snapshot
 (cd /tmp/snapshot && tar xf /home/user/Downloads/os.tgz)
 
 croot=${root}/collection
+# only process chain specific collections
 for day in $(ls ${croot} | sort); do
-   for chain in $(ls ${croot}/${day} | sort); do
+   for chain in $(ls ${croot}/${day} | sort | grep -v global); do
+      for f in $(ls ${croot}/${day}/${chain} | sort); do
+         bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${croot}/${day}/${chain}/${f}
+      done
+   done
+done
+# now process global collections -- this will add any collection that is only
+# referenced by the global top-100
+for day in $(ls ${croot} | sort); do
+   for chain in global; do
       for f in $(ls ${croot}/${day}/${chain} | sort); do
          bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${croot}/${day}/${chain}/${f}
       done
