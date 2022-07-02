@@ -1,8 +1,7 @@
 #!/bin/bash
 
 if [ -z $1 ]; then
-   tlp=/tmp/snapshot/nftmaven
-   # tlp=${HOME}/Downloads/nftmaven
+   tlp=${HOME}/Downloads/nftmaven
 else
    tlp="$1"
 fi
@@ -21,14 +20,34 @@ for chain in ethereum solana matic klaytn; do
       fi
 
       for jsf in $(find ${t100p} -type f -name ${chain}.csv); do
-         echo ${jsf}
          day=$(basename $(dirname ${jsf}))
          dtemp=${tmpdir}/${chain}-${day}.tmp
-         tail -n +2 ${jsf} | cut -f5 -d, | sed -e 's/"//g' >> ${dtemp}
+         tail -n +2 ${jsf} | csvtool format '%(5)\n' - >> ${dtemp}
          cat ${dtemp} >> ${tmpdir}/${chain}.tmp
       done
    done
    cat ${tmpdir}/${chain}.tmp | sort -u > ${tmpdir}/${chain}.top100
    cat ${tmpdir}/$chain-${ds}.tmp | sort -u > ${tmpdir}/${chain}-today.tmp
    comm -23 ${tmpdir}/${chain}.top100 ${tmpdir}/${chain}-today.tmp > ${tmpdir}/${chain}-remainder.top100
+done
+
+turi="https://api.opensea.io/api/v1/collection"
+dpath=${tlp}/opensea/collection/${ds}
+for chain in ethereum solana matic klaytn; do
+   echo "** chain => ${chain} **"
+   wc -l ${tmpdir}/${chain}-remainder.top100
+   cdpath=${dpath}/${chain}
+   mkdir -p ${cdpath}
+   IFS=$'\n'
+   cidx=1
+   for slug in `cat ${tmpdir}/${chain}-remainder.top100`; do
+      fn=$(printf "F%03d_%s_%s" ${cidx} ${ds} "${slug}")
+      ((cidx++))
+      dlfn="${cdpath}/${fn}.json"
+      response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --header 'Accept: application/json' --request GET --url "${turi}/${slug}")
+      if ((response != 200)); then
+         echo "response: $response"
+         rm -f ${dlfn}
+      fi
+   done
 done
