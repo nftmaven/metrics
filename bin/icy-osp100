@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+   ds=`date "+%Y-%m-%d"`
+else
+   ds="$1"
+fi
+
+dpath=${HOME}/Downloads/nftmaven/icy-tools/top100/${ds}
+
+for chain in ethereum ; do
+   ifp="${dpath}/${chain}.json"
+   ofp="${dpath}/${chain}.csv"
+   rm -f ${ofp}
+   echo '"rank","date","id","name","slug","volume","sales","average"' > ${ofp}
+
+   IFS=$'\n'
+   cidx=1
+   for row in `jq --raw-output '.data.contracts.edges[]|[.node.name, .node.unsafeOpenseaSlug, .node.stats.volume, .node.stats.totalSales, .node.stats.average] | @csv' ${ifp}`; do
+      printf "\"%d\",\"%s\",\"\",%s\n" ${cidx} ${ds} "${row}" >> ${ofp}
+      ((cidx++))
+   done
+done
