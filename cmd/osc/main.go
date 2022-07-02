@@ -115,7 +115,7 @@ func main() {
 					if err != nil {
 						return err
 					}
-					err = collection.Persist(db, day, nft, stats)
+					err = collection.Persist(db, chain, day, nft, stats)
 					if err != nil {
 						return err
 					}

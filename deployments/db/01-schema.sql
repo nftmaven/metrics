@@ -74,8 +74,9 @@ CREATE TABLE stats (
 
    slug VARCHAR(128) NOT NULL,
    data_source_name VARCHAR(128) NOT NULL,
+   criterion VARCHAR(32) NOT NULL,
    PRIMARY KEY (id),
    FOREIGN KEY (slug, data_source_name) REFERENCES nft (slug, data_source_name),
    FOREIGN KEY (data_source_name) REFERENCES data_source (name),
-   unique(day,slug, data_source_name)
+   unique(day,slug, data_source_name,criterion)
  );

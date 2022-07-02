@@ -1,20 +1,25 @@
 #!/bin/bash
 
+set -eo pipefail
+
 if [ -z $1 ]; then
-   root=/tmp/snapshot/opensea
+   root=/tmp/f2db
 else
    root="$1"
 fi
 
+ds=`date "+%Y-%m-%d"`
+fn=f2db-${ds}-nftmaven.tgz
 # fetch the data from the server
-ssh gala "(cd /root/Downloads/nftmaven && tar czf /tmp/os.tgz opensea)" && scp gala:/tmp/os.tgz /home/user/Downloads/
+ssh gala "(cd /root/Downloads/nftmaven && tar czf /tmp/${fn} .)" && scp gala:/tmp/${fn} /home/user/Downloads/
 
 #unpack it on the local system
-rm -rf /tmp/snapshot
-mkdir -p /tmp/snapshot
-(cd /tmp/snapshot && tar xf /home/user/Downloads/os.tgz)
+rm -rf ${root}
+mkdir -p ${root}
+(cd ${root} && tar xf /home/user/Downloads/${fn})
 
-croot=${root}/collection
+croot=${root}/opensea/collection
+mkdir -p ${croot}
 # only process chain specific collections
 for day in $(ls ${croot} | sort); do
    for chain in $(ls ${croot}/${day} | sort | grep -v global); do
@@ -33,7 +38,8 @@ for day in $(ls ${croot} | sort); do
    done
 done
 
-troot=${root}/top100
+troot=${root}/opensea/top100
+mkdir -p ${troot}
 for day in $(ls ${troot} | sort); do
    for f in $(ls ${troot}/${day} | grep csv$ | sort); do
       criterion=$(basename ${f} .csv)

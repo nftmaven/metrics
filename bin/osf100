@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 turi="https://opensea.io/rankings"
 ds=`date "+%Y-%m-%d"`
 dpath=${HOME}/Downloads/nftmaven/opensea/top100/${ds}

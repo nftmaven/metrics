@@ -59,7 +59,6 @@ func Persist(db *sqlx.DB, criterion string, data []*Top100) error {
 		if err != nil {
 			err = fmt.Errorf("failed to write to db '%s', %#v, %w", criterion, d, err)
 			log.Errorf(err.Error())
-			return err
 		}
 	}
 

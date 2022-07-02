@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 turi="https://api.opensea.io/api/v1/collection"
 
 tlp=${HOME}/Downloads/nftmaven/opensea

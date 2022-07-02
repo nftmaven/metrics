@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 tlp=${HOME}/Downloads/nftmaven/collections
 ds=`date "+%Y-%m-%d"`
 dpath=${tlp}/${ds}

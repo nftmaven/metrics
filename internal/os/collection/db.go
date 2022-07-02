@@ -7,7 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Persist(db *sqlx.DB, day string, nft *NFT, stats *Stats) error {
+func Persist(db *sqlx.DB, chain, day string, nft *NFT, stats *Stats) error {
 	if nft == nil {
 		err := errors.New("nil nft")
 		log.Error(err)
@@ -22,7 +22,7 @@ func Persist(db *sqlx.DB, day string, nft *NFT, stats *Stats) error {
 	if err != nil {
 		return err
 	}
-	err = persistStats(db, day, *nft, *stats)
+	err = persistStats(db, chain, day, *nft, *stats)
 	if err != nil {
 		return err
 	}
@@ -43,12 +43,11 @@ func persistNFT(db *sqlx.DB, nft NFT) error {
 	if err != nil {
 		err = fmt.Errorf("failed to insert nft '%s', %w", nft.Slug, err)
 		log.Errorf(err.Error())
-		return err
 	}
 	return nil
 }
 
-func persistStats(db *sqlx.DB, day string, nft NFT, stats Stats) error {
+func persistStats(db *sqlx.DB, chain, day string, nft NFT, stats Stats) error {
 	qt := `
 		INSERT INTO stats(
 			day, d1_volume, d1_change, d1_sales, d1_avg_price,
@@ -56,21 +55,20 @@ func persistStats(db *sqlx.DB, day string, nft NFT, stats Stats) error {
 			d30_volume, d30_change, d30_sales, d30_avg_price,
 			total_volume, total_sales, total_supply,
 			owners, avg_price, market_cap, floor_price, slug,
-			data_source_name)
+			data_source_name, criterion)
 		VALUES(
 			'%s', :d1_volume, :d1_change, :d1_sales, :d1_avg_price,
 			:d7_volume, :d7_change, :d7_sales, :d7_avg_price,
 			:d30_volume, :d30_change, :d30_sales, :d30_avg_price,
 			:total_volume, :total_sales, :total_supply,
 			:owners, :avg_price, :market_cap, :floor_price, '%s',
-			'%s')
+			'%s', '%s')
 	`
-	q := fmt.Sprintf(qt, day, nft.Slug, nft.DataSource)
+	q := fmt.Sprintf(qt, day, nft.Slug, nft.DataSource, chain)
 	_, err := db.NamedExec(q, stats)
 	if err != nil {
 		err = fmt.Errorf("failed to insert stats for nft '%s', %w", nft.Slug, err)
 		log.Errorf(err.Error())
-		return err
 	}
 	return nil
 }
