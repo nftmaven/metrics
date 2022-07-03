@@ -2,11 +2,21 @@
 
 set -e
 if [ -z $1 ]; then
+   start_date=`date -d "yesterday 13:55" '+%Y-%m-%d'`
+   end_date=`date "+%Y-%m-%d"`
    ds=`date "+%Y-%m-%d"`
 else
-   ds="$1"
+   start_date="$1"
+   end_date=`date -d "${start_date} + 1 day" '+%Y-%m-%d'`
+   if (($? != 0)); then
+      echo "invalid start date: \"${start_date}\""
+      exit 1
+   fi
 fi
 
+echo "< ${start_date} -- ${end_date} >"
+
+ds=`date "+%Y-%m-%d"`
 # tlp=${HOME}/Downloads/nftmaven
 tlp=/tmp/snapshot/nftmaven
 tmpdir=/tmp/nftmaven-twitter-${ds}
@@ -29,9 +39,9 @@ for chain in ethereum solana ; do
    rm -f ${tmpdir}/${chain}.tmp
 done
 
-uri_template='https://api.twitter.com/2/tweets/search/recent?query=%s&max_results=100&start_time=%sT00:00:00Z&tweet.fields=lang,text,author_id,created_at,public_metrics,source,geo,entities'
+uri_template='https://api.twitter.com/2/tweets/search/recent?query=%s&max_results=100&start_time=%sT00:00:00Z&end_time=%sT00:00:00Z&tweet.fields=lang,text,author_id,created_at,public_metrics,source,geo,entities'
 
-dpath=${tmpdir}/twitter/${ds}
+dpath=${tmpdir}/twitter/${start_date}
 
 for chain in ethereum solana ; do
    echo "** chain => ${chain} **"
@@ -48,7 +58,7 @@ for chain in ethereum solana ; do
       qterms="`echo ${qterms} | sed -e 's/and//ig'`"
       echo "> $qterms"
       encoded_qterms=`jq -R -r @uri <<<"${qterms}"`
-      first_uri=$(printf "${uri_template}" ${encoded_qterms} ${ds})
+      first_uri=$(printf "${uri_template}" ${encoded_qterms} ${start_date} ${end_date})
       actual_uri="${first_uri}"
       while true; do
          if ((${cidx} > 1)); then
