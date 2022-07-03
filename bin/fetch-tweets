@@ -1,5 +1,6 @@
 #!/bin/bash
 
+execution_start=`date -R`
 set -e
 if [ -z $1 ]; then
    start_date=`date -d "yesterday 13:55" '+%Y-%m-%d'`
@@ -41,7 +42,7 @@ done
 
 uri_template='https://api.twitter.com/2/tweets/search/recent?query=%s&max_results=100&start_time=%sT00:00:00Z&end_time=%sT00:00:00Z&tweet.fields=lang,text,author_id,created_at,public_metrics,source,geo,entities'
 
-dpath=${tmpdir}/twitter/${start_date}
+dpath=${tlp}/twitter/${start_date}
 
 for chain in ethereum solana ; do
    echo "** chain => ${chain} **"
@@ -100,3 +101,6 @@ for chain in ethereum solana ; do
       done
    done
 done
+
+execution_end=`date -R`
+date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'
