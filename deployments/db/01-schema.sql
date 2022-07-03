@@ -22,6 +22,8 @@ CREATE TABLE nft (
    discord_url VARCHAR(1024) NOT NULL,
    url VARCHAR(1024) NOT NULL,
    safelist_status VARCHAR(32) NOT NULL,
+   twitter_handle VARCHAR(128),
+   instagram_handle VARCHAR(128),
    PRIMARY KEY (id),
    FOREIGN KEY (data_source_name) REFERENCES data_source (name),
    unique(slug, data_source_name)
