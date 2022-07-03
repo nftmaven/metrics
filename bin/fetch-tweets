@@ -1,0 +1,92 @@
+#!/bin/bash
+
+set -e
+if [ -z $1 ]; then
+   ds=`date "+%Y-%m-%d"`
+else
+   ds="$1"
+fi
+
+# tlp=${HOME}/Downloads/nftmaven
+tlp=/tmp/snapshot/nftmaven
+tmpdir=/tmp/nftmaven-twitter-${ds}
+rm -rf ${tmpdir}
+mkdir -p ${tmpdir}
+
+for chain in ethereum solana ; do
+   for dsource in opensea icy-tools; do
+      t100p=${tlp}/${dsource}/top100
+
+      if [ ! -d ${t100p} ]; then
+         echo "skipping ${t100p} .."
+      fi
+
+      for jsf in $(find ${t100p} -type f -name ${chain}.csv); do
+         tail -n +2 ${jsf} | csvtool format '%(5) %(4)\n' - >> ${tmpdir}/${chain}.tmp
+      done
+   done
+   cat ${tmpdir}/${chain}.tmp | sort -u > ${tmpdir}/${chain}.top100
+   rm -f ${tmpdir}/${chain}.tmp
+done
+
+uri_template='https://api.twitter.com/2/tweets/search/recent?query=%s&max_results=100&start_time=%sT00:00:00Z&tweet.fields=lang,text,author_id,created_at,public_metrics,source,geo,entities'
+
+dpath=${tmpdir}/twitter/${ds}
+
+for chain in ethereum solana ; do
+   echo "** chain => ${chain} **"
+   wc -l ${tmpdir}/${chain}.top100
+   IFS=$'\n'
+   for qterms in `cat ${tmpdir}/${chain}.top100`; do
+      cidx=1
+      next_token=""
+      slug=`echo ${qterms} | cut -f1 -d' '`
+      echo " - slug => ${slug}  "
+      cdpath=${dpath}/${chain}/${slug}
+      mkdir -p ${cdpath}
+      qterms="nft `echo ${qterms} | sed -e 's/[^ a-zA-Z0-9]//g'`"
+      qterms="`echo ${qterms} | sed -e 's/and//ig'`"
+      echo "> $qterms"
+      encoded_qterms=`jq -R -r @uri <<<"${qterms}"`
+      first_uri=$(printf "${uri_template}" ${encoded_qterms} ${ds})
+      actual_uri="${first_uri}"
+      while true; do
+         if ((${cidx} > 1)); then
+            if [ -z "${next_token}" ]; then
+               # we are done fetching tweets for this collection
+               echo "!"
+               break
+            else
+               # more tweets to come - append next_token to uri params
+               actual_uri="${first_uri}&next_token=${next_token}"
+               echo -n "."
+            fi
+         fi
+         dlfn="${cdpath}/${cidx}.json"
+         response=$(curl -L -s -o ${dlfn}.tmp -w "%{http_code}"  --header 'Authorization: Bearer AAAAAAAAAAAAAAAAAAAAAOuteQEAAAAAjEQkg7O4x%2F0LhAKHdfV0yvjbq34%3DvBrjPdpAJ3ryVLl3004V5l7B5JoMNcbeAdENP2LF7X6d0ivukJ' --request GET --url "${actual_uri}")
+         if ((response != 200)); then
+            echo "response: $response"
+            echo "$qterms"
+            echo "$actual_uri"
+            rm -f ${dlfn}.tmp
+            if ((response == 429)); then
+               echo "< too many requests> "
+               sleep 60
+               continue
+            else
+               sleep 2
+               break
+            fi
+         fi
+         cat ${dlfn}.tmp | jq > ${dlfn}
+         rm -f ${dlfn}.tmp
+         more_results=`grep '"next_token":' ${dlfn} | wc -l`
+         if (($more_results > 0)); then
+            next_token=`grep next_token ${dlfn} | cut -f2 -d: | sed -e 's/"//g' | sed -e 's/\s*//g'`
+         else
+            next_token=""
+         fi
+         ((cidx++))
+      done
+   done
+done
