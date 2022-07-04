@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -e
+execution_start=`date -R`
+ds=`date "+%Y-%m-%d"`
+
+# tlp=${HOME}/Downloads/nftmaven
+tlp=/tmp/snapshot/nftmaven
+
+tmpdir=/tmp/nftmaven-twitter-followers-${ds}
+mkdir -p ${tmpdir}
+
+hfile=${tmpdir}/unique-handles.csv
+if [[ -f ${hfile} && -r ${hfile} ]]; then
+   echo "file with unique handles in place already.."
+else
+   for f in `find ${tlp}/opensea/collection/ -type f | grep json$`; do
+      jq --raw-output '[.collection.slug,.collection.twitter_username] | @csv' $f >> ${tmpdir}/all-handles.tmp
+   done
+   grep -v ',$' ${tmpdir}/all-handles.tmp | sort -u > ${hfile}
+fi
+wc -l ${hfile}
+
+uri_template='https://api.twitter.com/2/users/by/username/%s?user.fields=public_metrics'
+
+dpath=${tlp}/twitter/followers/${ds}
+mkdir -p ${dpath}
+
+IFS=$'\n'
+for hpair in `cat ${hfile}`; do
+   slug=`echo ${hpair} | csvtool format '%(1)' -`
+   if [ -z "${slug}" ]; then
+      continue
+   fi
+   handle=`echo ${hpair} | csvtool format '%(2)' -`
+   if [ -z "${handle}" ]; then
+      continue
+   fi
+   echo " > ${slug} --> ${handle} "
+   uri=$(printf "${uri_template}" ${handle})
+   dlfn="${dpath}/${slug}.json"
+   cidx=1
+   while true; do
+      response=$(curl -L -s -o ${dlfn}.tmp -w "%{http_code}"  --header 'Authorization: Bearer AAAAAAAAAAAAAAAAAAAAAOuteQEAAAAAjEQkg7O4x%2F0LhAKHdfV0yvjbq34%3DvBrjPdpAJ3ryVLl3004V5l7B5JoMNcbeAdENP2LF7X6d0ivukJ' --request GET --url "${uri}")
+      if ((response == 200)); then
+         cat ${dlfn}.tmp | jq > ${dlfn}
+         rm -f ${dlfn}.tmp
+         break
+      else
+         echo "response: $response"
+         echo "$uri"
+         rm -f ${dlfn}.tmp
+         if ((response == 429)); then
+            echo "< too many requests | ${cidx} >"
+            sleep 60
+            ((cidx++))
+            continue
+         else
+            sleep 2
+            break
+         fi
+      fi
+   done
+done
+
+execution_end=`date -R`
+date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'
