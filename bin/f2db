@@ -21,7 +21,7 @@ mkdir -p ${root}
 croot=${root}/opensea/collection
 mkdir -p ${croot}
 # only process chain specific collections
-for day in $(ls ${croot} | sort); do
+for day in $(ls -t ${croot}); do
    for chain in $(ls ${croot}/${day} | sort | grep -v global); do
       for f in $(ls ${croot}/${day}/${chain} | sort); do
          bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${croot}/${day}/${chain}/${f}
@@ -30,7 +30,7 @@ for day in $(ls ${croot} | sort); do
 done
 # now process global collections -- this will add any collection that is only
 # referenced by the global top-100
-for day in $(ls ${croot} | sort); do
+for day in $(ls -t ${croot}); do
    for chain in global; do
       for f in $(ls ${croot}/${day}/${chain} | sort); do
          bin/osc pcs --chain ${chain} --day ${day} --dsource opensea --fpath ${croot}/${day}/${chain}/${f}
@@ -40,7 +40,7 @@ done
 
 troot=${root}/opensea/top100
 mkdir -p ${troot}
-for day in $(ls ${troot} | sort); do
+for day in $(ls -t ${troot}); do
    for f in $(ls ${troot}/${day} | grep csv$ | sort); do
       criterion=$(basename ${f} .csv)
       bin/osc pth --dsource opensea --criterion ${criterion} --fpath ${troot}/${day}/${f}
