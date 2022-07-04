@@ -34,10 +34,10 @@ func persistNFT(db *sqlx.DB, nft NFT) error {
 	q := `
 		INSERT IGNORE INTO nft(
 			data_source_name, chain, slug, name, image_url, discord_url, url,
-			safelist_status)
+			safelist_status, twitter_handle, instagram_handle)
 		VALUES(
 			:data_source_name, :chain, :slug, :name, :image_url, :discord_url,
-			:url, :safelist_status)
+			:url, :safelist_status, :twitter_handle, :instagram_handle)
 		`
 	_, err := db.NamedExec(q, nft)
 	if err != nil {
