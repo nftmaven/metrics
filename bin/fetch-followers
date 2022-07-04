@@ -36,6 +36,7 @@ for hpair in `cat ${hfile}`; do
    if [ -z "${handle}" ]; then
       continue
    fi
+   handle="`echo ${handle} | sed -e 's/[^_a-zA-Z0-9]//g'`"
    echo " > ${slug} --> ${handle} "
    uri=$(printf "${uri_template}" ${handle})
    dlfn="${dpath}/${slug}.json"
