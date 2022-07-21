@@ -52,11 +52,17 @@ for day in $(ls -t ${troot}); do
    done
 done
 
-# insert twitter stats
+# insert twitter search stats
 for chain in ethereum solana; do
    for day in `(cd ${root}/twitter ; ls -d 202* | sort)`; do
       for nft in `ls -d ${root}/twitter/${day}/${chain}/* | sort`; do
          bin/osc twitter-search --chain ${chain} --day ${day} --dsource opensea --fpath ${nft}
       done
+   done
+done
+# insert twitter follower stats
+for day in `(cd ${root}/twitter/followers ; ls -d 202* | sort)`; do
+   for nft in `ls -d ${root}/twitter/followers/${day}/* | sort`; do
+      bin/osc twitter-followers --day ${day} --fpath ${nft}
    done
 done

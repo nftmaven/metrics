@@ -23,7 +23,7 @@ tmpdir=/tmp/nftmaven-twitter-${ds}
 rm -rf ${tmpdir}
 mkdir -p ${tmpdir}
 
-for chain in ethereum solana ; do
+for chain in ethereum solana matic ; do
    for dsource in opensea icy-tools; do
       t100p=${tlp}/${dsource}/top100
 
@@ -43,7 +43,7 @@ uri_template='https://api.twitter.com/2/tweets/search/recent?query=%s&max_result
 
 dpath=${tlp}/twitter/${start_date}
 
-for chain in ethereum solana ; do
+for chain in ethereum solana matic ; do
    echo "** chain => ${chain} **"
    wc -l ${tmpdir}/${chain}.top100
    IFS=$'\n'
