@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -154,8 +155,19 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					log.Info("fpath = ", fpath)
-					return twitter.ParseSearchStats(db, chain, day, dsource, fpath)
+					ps := fmt.Sprintf("%c", os.PathSeparator)
+					ss := strings.Split(fpath, ps)
+					slug := ss[len(ss)-1]
+					ts, err := twitter.ParseSearchStats(chain, day, dsource, slug, fpath)
+					if err != nil {
+						log.Error(err)
+					} else {
+						err = twitter.PersistStats(db, *ts)
+						if err != nil {
+							log.Error(err)
+						}
+					}
+					return err
 				},
 			},
 		},

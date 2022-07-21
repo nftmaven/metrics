@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
@@ -30,16 +29,14 @@ type TwitterStats struct {
 	PublicMetrics
 }
 
-func ParseSearchStats(db *sqlx.DB, chain, day, dsource, spath string) error {
+func ParseSearchStats(chain, day, dsource, slug, spath string) (*TwitterStats, error) {
 	files, err := ioutil.ReadDir(spath)
 	if err != nil {
 		log.Error("failed to read twitter search stats files for  ", spath)
 		log.Error(err)
-		return err
+		return nil, err
 	}
 	ps := fmt.Sprintf("%c", os.PathSeparator)
-	ss := strings.Split(spath, ps)
-	slug := ss[len(ss)-1]
 	ts := TwitterStats{Day: day, Criterion: chain, Slug: slug, DataSource: dsource}
 	for _, file := range files {
 		fpath := spath + ps + file.Name()
@@ -47,15 +44,11 @@ func ParseSearchStats(db *sqlx.DB, chain, day, dsource, spath string) error {
 		if err != nil {
 			log.Error("failed to parse twitter search stats for ", fpath)
 			log.Error(err)
-		}
-		err = persistStats(db, ts)
-		if err != nil {
-			log.Error("failed to persist twitter search stats for ", fpath)
-			log.Error(err)
+			return nil, err
 		}
 	}
 
-	return nil
+	return &ts, nil
 }
 
 func parseStats(fpath string, stats *TwitterStats) error {
@@ -86,7 +79,7 @@ func parseStats(fpath string, stats *TwitterStats) error {
 	return nil
 }
 
-func persistStats(db *sqlx.DB, stats TwitterStats) error {
+func PersistStats(db *sqlx.DB, stats TwitterStats) error {
 	q := `
 		INSERT INTO twitter_stats(
 			day, criterion, slug, data_source_name,

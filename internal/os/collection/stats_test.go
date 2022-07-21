@@ -35,7 +35,7 @@ func TestParseStatsSuccess(t *testing.T) {
 
 func TestParseStatsFailedToRead(t *testing.T) {
 
-	nft, err := Parse("opensea", "solana", "/a/b/c")
+	nft, err := ParseStats("opensea", "solana", "/a/b/c")
 	assert.Nil(t, nft)
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "failed to read ")
@@ -43,7 +43,7 @@ func TestParseStatsFailedToRead(t *testing.T) {
 
 func TestParseStatsFailedToParse(t *testing.T) {
 
-	nft, err := Parse("opensea", "solana", brokenJSONPath)
+	nft, err := ParseStats("opensea", "solana", brokenJSONPath)
 	assert.Nil(t, nft)
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "failed to parse ")
