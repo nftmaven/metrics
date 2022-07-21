@@ -28,7 +28,7 @@ func TestParseSuccess(t *testing.T) {
 			QuoteCount:   5,
 		},
 	}
-	actual, err := ParseSearchStats(chain, day, dsource, slug, "test_data")
+	actual, err := ParseSearchStats(chain, day, dsource, slug, "test_data/1")
 	assert.Nil(t, err)
 	assert.NotNil(t, actual)
 	assert.Equal(t, expected, *actual)
