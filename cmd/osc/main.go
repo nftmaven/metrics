@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nftmaven/metrics/internal/os/collection"
 	"github.com/nftmaven/metrics/internal/os/top100"
+	"github.com/nftmaven/metrics/internal/twitter"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -120,6 +121,41 @@ func main() {
 						return err
 					}
 					return nil
+				},
+			},
+			{
+				Name:    "process-twitter-search-stats",
+				Aliases: []string{"ptss"},
+				Usage:   "process a json file with twitter search stats for a specific collection",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "chain",
+						Usage:       "the chain this collection lives on (e.g. \"ethereum\")",
+						Required:    true,
+						Destination: &chain,
+					},
+					&cli.StringFlag{
+						Name:        "day",
+						Usage:       "date on which the stats were captured (e.g. \"2022-06-14\")",
+						Required:    true,
+						Destination: &day,
+					},
+					&cli.StringFlag{
+						Name:        "dsource",
+						Usage:       "data source (e.g. \"opensea\")",
+						Required:    true,
+						Destination: &dsource,
+					},
+					&cli.StringFlag{
+						Name:        "fpath",
+						Usage:       "directory holding twitter search stats files",
+						Required:    true,
+						Destination: &fpath,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					log.Info("fpath = ", fpath)
+					return twitter.ParseSearchStats(chain, day, dsource, fpath)
 				},
 			},
 		},

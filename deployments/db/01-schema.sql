@@ -44,6 +44,25 @@ CREATE TABLE top100stats (
    unique(day, slug, data_source_name, criterion)
  );
 
+DROP TABLE IF EXISTS twitter_stats;
+CREATE TABLE twitter_stats (
+   id MEDIUMINT NOT NULL AUTO_INCREMENT,
+   day DATE NOT NULL,
+   criterion VARCHAR(32) NOT NULL,
+   slug VARCHAR(128) NOT NULL,
+   data_source_name VARCHAR(128) NOT NULL,
+   followers INT UNSIGNED NOT NULL DEFAULT 0,
+   search_hits INT UNSIGNED NOT NULL DEFAULT 0,
+   retweet_count INT UNSIGNED NOT NULL DEFAULT 0,
+   reply_count INT UNSIGNED NOT NULL DEFAULT 0,
+   like_count INT UNSIGNED NOT NULL DEFAULT 0,
+   quote_count INT UNSIGNED NOT NULL DEFAULT 0,
+   PRIMARY KEY (id),
+   FOREIGN KEY (slug, data_source_name) REFERENCES nft (slug, data_source_name),
+   FOREIGN KEY (data_source_name) REFERENCES data_source (name),
+   unique(day, slug, data_source_name, criterion)
+ );
+
 
 DROP TABLE IF EXISTS stats;
 CREATE TABLE stats (
