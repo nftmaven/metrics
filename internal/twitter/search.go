@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +30,7 @@ type TwitterStats struct {
 	PublicMetrics
 }
 
-func ParseSearchStats(chain, day, dsource, spath string) error {
+func ParseSearchStats(db *sqlx.DB, chain, day, dsource, spath string) error {
 	files, err := ioutil.ReadDir(spath)
 	if err != nil {
 		log.Error("failed to read twitter search stats files for  ", spath)
@@ -47,9 +48,13 @@ func ParseSearchStats(chain, day, dsource, spath string) error {
 			log.Error("failed to parse twitter search stats for ", fpath)
 			log.Error(err)
 		}
+		err = persistStats(db, ts)
+		if err != nil {
+			log.Error("failed to persist twitter search stats for ", fpath)
+			log.Error(err)
+		}
 	}
 
-	fmt.Printf("** %#v\n", ts)
 	return nil
 }
 
@@ -77,6 +82,29 @@ func parseStats(fpath string, stats *TwitterStats) error {
 		stats.ReplyCount += d.PM.ReplyCount
 		stats.LikeCount += d.PM.LikeCount
 		stats.QuoteCount += d.PM.QuoteCount
+	}
+	return nil
+}
+
+func persistStats(db *sqlx.DB, stats TwitterStats) error {
+	q := `
+		INSERT INTO twitter_stats(
+			day, criterion, slug, data_source_name,
+			search_hits, retweet_count, reply_count, like_count, quote_count)
+		VALUES(
+			:day, :criterion, :slug, :data_source_name,
+			:search_hits, :retweet_count, :reply_count, :like_count, :quote_count)
+			ON DUPLICATE KEY UPDATE
+				search_hits=:search_hits,
+				retweet_count=:retweet_count,
+				reply_count=:reply_count,
+				like_count=:like_count,
+				quote_count=:quote_count
+		`
+	_, err := db.NamedExec(q, stats)
+	if err != nil {
+		log.Error("failed to insert or update ", stats)
+		log.Error(err.Error())
 	}
 	return nil
 }

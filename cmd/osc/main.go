@@ -155,7 +155,7 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					log.Info("fpath = ", fpath)
-					return twitter.ParseSearchStats(chain, day, dsource, fpath)
+					return twitter.ParseSearchStats(db, chain, day, dsource, fpath)
 				},
 			},
 		},
