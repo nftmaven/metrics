@@ -48,10 +48,11 @@ DROP TABLE IF EXISTS twitter_stats;
 CREATE TABLE twitter_stats (
    id MEDIUMINT NOT NULL AUTO_INCREMENT,
    day DATE NOT NULL,
-   criterion VARCHAR(32) NOT NULL,
+   criterion VARCHAR(32) NOT NULL DEFAULT '',
    slug VARCHAR(128) NOT NULL,
-   data_source_name VARCHAR(128) NOT NULL,
+   data_source_name VARCHAR(128) NOT NULL DEFAULT 'opensea',
    followers INT UNSIGNED NOT NULL DEFAULT 0,
+   tweet_count INT UNSIGNED NOT NULL DEFAULT 0,
    search_hits INT UNSIGNED NOT NULL DEFAULT 0,
    retweet_count INT UNSIGNED NOT NULL DEFAULT 0,
    reply_count INT UNSIGNED NOT NULL DEFAULT 0,

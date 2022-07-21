@@ -56,7 +56,7 @@ done
 for chain in ethereum solana; do
    for day in `(cd ${root}/twitter ; ls -d 202* | sort)`; do
       for nft in `ls -d ${root}/twitter/${day}/${chain}/* | sort`; do
-         bin/osc ptss --chain ${chain} --day ${day} --dsource opensea --fpath ${nft}
+         bin/osc twitter-search --chain ${chain} --day ${day} --dsource opensea --fpath ${nft}
       done
    done
 done

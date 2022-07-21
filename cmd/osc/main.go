@@ -126,8 +126,8 @@ func main() {
 			},
 			{
 				Name:    "process-twitter-search-stats",
-				Aliases: []string{"ptss"},
-				Usage:   "process a json file with twitter search stats for a specific collection",
+				Aliases: []string{"twitter-search"},
+				Usage:   "process 1+ json files with twitter search stats for a collection",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "chain",
@@ -164,6 +164,41 @@ func main() {
 						log.Error(err)
 					} else {
 						err = twitter.PersistStats(db, *ts)
+						if err != nil {
+							log.Error(err)
+						}
+					}
+					return err
+				},
+			},
+			{
+				Name:    "process-twitter-follower-stats",
+				Aliases: []string{"twitter-followers"},
+				Usage:   "process a json file with twitter follower stats for a collection",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "day",
+						Usage:       "date on which the stats were captured (e.g. \"2022-06-14\")",
+						Required:    true,
+						Destination: &day,
+					},
+					&cli.StringFlag{
+						Name:        "fpath",
+						Usage:       "directory holding twitter search stats files",
+						Required:    true,
+						Destination: &fpath,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					log.Info("fpath = ", fpath)
+					ps := fmt.Sprintf("%c", os.PathSeparator)
+					ss := strings.Split(fpath, ps)
+					slug := strings.Split(ss[len(ss)-1], ".")[0]
+					ts, err := twitter.ParseFollowers(day, slug, fpath)
+					if err != nil {
+						log.Error(err)
+					} else {
+						err = twitter.PersistFollowers(db, *ts)
 						if err != nil {
 							log.Error(err)
 						}
