@@ -46,3 +46,12 @@ for day in $(ls -t ${troot}); do
       bin/osc pth --dsource opensea --criterion ${criterion} --fpath ${troot}/${day}/${f}
    done
 done
+
+# insert twitter stats
+for chain in ethereum solana; do
+   for day in `(cd ${root}/twitter ; ls -d 202* | sort)`; do
+      for nft in `ls -d ${root}/twitter/${day}/${chain}/* | sort`; do
+         bin/osc ptss --chain ${chain} --day ${day} --dsource opensea --fpath ${nft}
+      done
+   done
+done
