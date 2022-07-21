@@ -41,3 +41,11 @@ func TestParseFailedToRead(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.ErrorContains(t, err, "no such file or directory")
 }
+
+func TestParseFailedToParse(t *testing.T) {
+
+	actual, err := ParseSearchStats(chain, day, dsource, slug, "test_data/2")
+	assert.Nil(t, actual)
+	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "unexpected end of JSON input")
+}
