@@ -155,6 +155,7 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					log.Info("fpath = ", fpath)
 					ps := fmt.Sprintf("%c", os.PathSeparator)
 					ss := strings.Split(fpath, ps)
 					slug := ss[len(ss)-1]

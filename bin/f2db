@@ -10,8 +10,13 @@ fi
 
 ds=`date "+%Y-%m-%d"`
 fn=f2db-${ds}-nftmaven.tgz
-# fetch the data from the server
-ssh gala "(cd /root/Downloads/nftmaven && tar czf /tmp/${fn} .)" && scp gala:/tmp/${fn} /home/user/Downloads/
+fadp=/home/user/Downloads/${fn}
+if [ ! -f ${fadp} ]; then
+   # fetch the data from the server
+   ssh gala "(cd /root/Downloads/nftmaven && tar czf /tmp/${fn} .)" && scp gala:/tmp/${fn} /home/user/Downloads/
+else
+   echo "archive file (${fadp}) downloaded already!"
+fi
 
 #unpack it on the local system
 rm -rf ${root}
