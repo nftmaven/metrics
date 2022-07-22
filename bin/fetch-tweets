@@ -54,7 +54,7 @@ for chain in ethereum solana matic ; do
       echo " - slug => ${slug}  "
       cdpath=${dpath}/${chain}/${slug}
       mkdir -p ${cdpath}
-      qterms="nft `echo ${qterms} | sed -e 's/[^ a-zA-Z0-9]//g'`"
+      qterms="nft ${chain} `echo ${qterms} | sed -e 's/[^ a-zA-Z0-9]//g'`"
       qterms="`echo ${qterms} | sed -e 's/and//ig'`"
       echo "> $qterms"
       encoded_qterms=`jq -R -r @uri <<<"${qterms}"`
